@@ -25,6 +25,13 @@ const HelloWorld = () => {
 		}
 		fetchMessage();
 		addSmartContractListener();
+
+		async function fetchWallet() {
+			const { address, status } = await getCurrentWalletConnected();
+			setWallet(address);
+			setStatus(status);
+		}
+		fetchWallet();
 	}, []);
 
 	function addSmartContractListener() {
@@ -43,7 +50,9 @@ const HelloWorld = () => {
 	}
 
 	const connectWalletPressed = async () => {
-		//TODO: implement
+		const walletResponse = await connectWallet();
+		setStatus(walletResponse.status);
+		setWallet(walletResponse.address);
 	};
 
 	const onUpdatePressed = async () => {
