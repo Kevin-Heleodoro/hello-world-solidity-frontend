@@ -6,6 +6,7 @@ import {
 	updateMessage,
 	loadCurrentMessage,
 	getCurrentWalletConnected,
+	Metainstall,
 } from './util/interact.js';
 
 import alchemylogo from './alchemylogo.svg';
@@ -32,6 +33,7 @@ const HelloWorld = () => {
 			setStatus(status);
 		}
 		fetchWallet();
+		addWalletListener();
 	}, []);
 
 	function addSmartContractListener() {
@@ -46,7 +48,16 @@ const HelloWorld = () => {
 	}
 
 	function addWalletListener() {
-		//TODO: implement
+		if (window.ethereum) {
+			window.ethereum.on('accountsChanged', (accounts) => {
+				if (accounts.length > 0) {
+					setWallet(accounts[0]);
+					setStatus(`👆🏽 Write a message in the text-field above.`);
+				}
+			});
+		} else {
+			setStatus(Metainstall());
+		}
 	}
 
 	const connectWalletPressed = async () => {
@@ -56,7 +67,8 @@ const HelloWorld = () => {
 	};
 
 	const onUpdatePressed = async () => {
-		//TODO: implement
+		const { status } = await updateMessage(walletAddress, newMessage);
+		setStatus(status);
 	};
 
 	//the UI of our component

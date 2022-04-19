@@ -36,25 +36,6 @@ export const connectWallet = async () => {
 			};
 		}
 	} else {
-		// return {
-		// 	address: '',
-		// 	status: (
-		// 		<span>
-		// 			<p>
-		// 				{' '}
-		// 				🦊
-		// 				{''}
-		// 				<a
-		// 					target='_blank'
-		// 					href={`https://metamask.io/download.html`}
-		// 					rel='noreferrer'
-		// 				>
-		// 					Please install Metamask in your browser
-		// 				</a>
-		// 			</p>
-		// 		</span>
-		// 	),
-		// };
 		Metainstall();
 	}
 };
@@ -84,15 +65,11 @@ export const getCurrentWalletConnected = async () => {
 			};
 		}
 	} else {
-		// return {
-		// 	address: '',
-		// 	status,
-		// };
 		Metainstall();
 	}
 };
 
-const Metainstall = () => {
+export const Metainstall = () => {
 	return {
 		address: '',
 		status: (
@@ -114,4 +91,53 @@ const Metainstall = () => {
 	};
 };
 
-// export const updateMessage = async (address, message) => {};
+export const updateMessage = async (address, message) => {
+	if (!window.ethereum || address === null) {
+		return {
+			status: '💡 Connect your Metamask wallet',
+		};
+	}
+
+	if (message.trim() === '') {
+		return {
+			status: '❌ Your message cannot be an empty string.',
+		};
+	}
+
+	// transaction parameters
+	const transactionParameters = {
+		to: contractAddress,
+		from: address,
+		data: helloWorldContract.methods.update(message).encodeABI(),
+	};
+
+	// sign transaction
+	try {
+		const txHash = await window.ethereum.request({
+			method: 'eth_sendTransaction',
+			params: [transactionParameters],
+		});
+
+		return {
+			status: (
+				<span>
+					✅{' '}
+					<a
+						target='_blank'
+						rel='noreferrer'
+						href={`https://ropsten.etherscan.io/tx/${txHash}`}
+					>
+						View the status of your transaction on Etherscan!
+					</a>
+					<br />
+					ℹ️ Once the transaction is verified by the network, the
+					message will be updated automatically.
+				</span>
+			),
+		};
+	} catch (err) {
+		return {
+			status: `😥 ${err.message}`,
+		};
+	}
+};
